@@ -1,0 +1,118 @@
+==============================
+FitModeProject - Beginner Git + GitHub Guide
+==============================
+
+STEP 0 — Install Required Software
+----------------------------------
+1. Install Git:
+   https://git-scm.com/downloads
+   (Use default options)
+
+2. Install VS Code:
+   https://code.visualstudio.com
+   (Optional: install "GitHub Pull Requests and Issues" extension)
+
+3. Install Flutter SDK (for coding later):
+   https://flutter.dev/docs/get-started/install
+
+---
+
+STEP 1 — Set Up Git
+-------------------
+Open Git Bash (installed with Git) or PowerShell and run:
+
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+
+(This tells Git who you are)
+
+---
+
+STEP 2 — Set Up SSH Key (Optional but recommended)
+-------------------------------------------------
+1. Open Git Bash:
+
+ssh-keygen -t ed25519 -C "your.email@example.com"
+
+- Press Enter for all defaults
+- This creates a key in C:\Users\<YourUser>\.ssh\
+
+2. Copy the public key:
+
+cat ~/.ssh/id_ed25519.pub
+
+3. Go to GitHub → Settings → SSH and GPG keys → New SSH key
+4. Paste the key and save
+
+---
+
+STEP 3 — Clone the Project
+--------------------------
+1. Go to the repo page:
+   https://github.com/ArtemiiM67/FitModeProject
+2. Click "Code → SSH" (or HTTPS) → copy URL
+3. Open Git Bash/PowerShell and run:
+
+git clone <URL>
+
+4. Go into the folder:
+
+cd FitModeProject
+
+---
+
+STEP 4 — Install Flutter Packages
+---------------------------------
+Run inside the project folder:
+
+flutter pub get
+
+---
+
+STEP 5 — Workflow for Daily Coding
+----------------------------------
+1. Pull updates before starting work:
+
+git pull
+
+2. Create a branch for your work (optional but recommended):
+
+git checkout -b friend-feature
+
+3. Do your coding in VS Code
+
+4. Stage your changes:
+
+git add .
+
+5. Commit your changes:
+
+git commit -m "Describe what you did"
+
+6. Push your branch to GitHub:
+
+git push -u origin friend-feature
+
+7. Optional: Open a Pull Request on GitHub to merge into main
+
+---
+
+STEP 6 — Important Rules
+------------------------
+- Always pull before working (git pull)
+- Always commit and push after working (git add . → git commit → git push)
+- Don’t work directly on main if doing bigger changes (use a branch)
+- Use meaningful commit messages
+
+---
+
+STEP 7 — Helpful Resources
+--------------------------
+- Git & GitHub basics: https://learngitbranching.js.org
+- VS Code + Git guide: https://code.visualstudio.com/docs/editor/versioncontrol
+- Flutter getting started: https://flutter.dev/docs/get-started/codelab
+
+---
+
+🎯 Following these steps, even a complete beginner can safely
+pull, code, commit, and push without breaking anything.
