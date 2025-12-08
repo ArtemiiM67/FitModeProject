@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
 import 'theme.dart';
+import 'screens/user_input_screen.dart';
+import 'screens/home_screen.dart';
+import 'models/user.dart';
 
 void main() {
-  runApp(FitModeApp());
+  runApp(const FitModeApp());
 }
 
 class FitModeApp extends StatelessWidget {
+  const FitModeApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FitMode',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme, // Using your custom theme
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark, // Start in luxury black theme
-      home: HomeScreen(),
+      title: 'FitMode',
+      theme: AppTheme.lightTheme,
+      home: const UserInputScreen(), // Start with user info screen
     );
   }
 }
