@@ -215,26 +215,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 15),
 
-              // Macros: 2x2 fixed size
+
+              // Macros centered grid (2×2)
               Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _buildMacroCard("Calories", remainingMacros["Calories"]!),
+                      const SizedBox(width: 12),
                       _buildMacroCard("Protein", remainingMacros["Protein"]!),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _buildMacroCard("Fat", remainingMacros["Fat"]!),
+                      const SizedBox(width: 12),
                       _buildMacroCard("Carbs", remainingMacros["Carbs"]!),
                     ],
                   ),
                 ],
               ),
+
 
               const SizedBox(height: 15),
 

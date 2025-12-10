@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
-import 'home_screen.dart';
 import '../theme.dart';
 
 class UserInputScreen extends StatefulWidget {
-  const UserInputScreen({super.key});
+  final Function(User) onComplete;
+  const UserInputScreen({super.key, required this.onComplete});
 
   @override
   State<UserInputScreen> createState() => _UserInputScreenState();
@@ -12,132 +12,216 @@ class UserInputScreen extends StatefulWidget {
 
 class _UserInputScreenState extends State<UserInputScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController ageController = TextEditingController();
-  final TextEditingController weightController = TextEditingController();
-  String sex = "Male";
-  String activityLevel = "Moderate";
-  String goal = "Maintain";
 
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      final user = User(
-        username: usernameController.text,
-        age: int.parse(ageController.text),
-        weight: double.parse(weightController.text),
-        sex: sex,
-        activityLevel: activityLevel,
-        goal: goal,
-      );
+  // Controllers
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
 
-      // Navigate to HomeScreen with calculated macros
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomeScreen(user: user),
-        ),
-      );
-    }
-  }
+  String sex = 'Male';
+  String activityLevel = 'Sedentary';
+  String goal = 'Maintain';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.bgColor,
-      body: SafeArea(
-        child: Padding(
+      body: Center(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 300),
             child: Form(
               key: _formKey,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    "Enter Your Info",
-                    style: TextStyle(
-                      fontSize: 24,
+                  // Welcome
+                  Text(
+                    "Welcome!",
+                    style: const TextStyle(
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
+                      color: AppTheme.accentGold,
                     ),
                   ),
                   const SizedBox(height: 20),
+
+                  // Username
                   TextFormField(
-                    controller: usernameController,
-                    decoration: const InputDecoration(
+                    controller: _usernameController,
+                    decoration: InputDecoration(
                       labelText: "Username",
                       filled: true,
                       fillColor: AppTheme.cardBg,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppTheme.accentGold),
+                      ),
                     ),
-                    validator: (val) => val!.isEmpty ? "Required" : null,
+                    style: const TextStyle(color: AppTheme.textPrimary),
+                    validator: (value) =>
+                        value == null || value.isEmpty ? "Enter username" : null,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
+
+                  // Age
                   TextFormField(
-                    controller: ageController,
-                    decoration: const InputDecoration(
+                    controller: _ageController,
+                    decoration: InputDecoration(
                       labelText: "Age",
                       filled: true,
                       fillColor: AppTheme.cardBg,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppTheme.accentGold),
+                      ),
                     ),
+                    style: const TextStyle(color: AppTheme.textPrimary),
                     keyboardType: TextInputType.number,
-                    validator: (val) => val!.isEmpty ? "Required" : null,
+                    validator: (value) =>
+                        value == null || value.isEmpty ? "Enter age" : null,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
+
+                  // Weight
                   TextFormField(
-                    controller: weightController,
-                    decoration: const InputDecoration(
+                    controller: _weightController,
+                    decoration: InputDecoration(
                       labelText: "Weight (kg)",
                       filled: true,
                       fillColor: AppTheme.cardBg,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppTheme.accentGold),
+                      ),
                     ),
+                    style: const TextStyle(color: AppTheme.textPrimary),
                     keyboardType: TextInputType.number,
-                    validator: (val) => val!.isEmpty ? "Required" : null,
+                    validator: (value) =>
+                        value == null || value.isEmpty ? "Enter weight" : null,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
+
+                  // Sex Dropdown
                   DropdownButtonFormField<String>(
                     value: sex,
-                    items: ["Male", "Female"].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-                    onChanged: (val) => setState(() => sex = val!),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: "Sex",
                       filled: true,
                       fillColor: AppTheme.cardBg,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppTheme.accentGold),
+                      ),
                     ),
+                    style: const TextStyle(color: AppTheme.textPrimary),
+                    items: ['Male', 'Female', 'Other']
+                        .map((s) => DropdownMenuItem(
+                              value: s,
+                              child: Text(s),
+                            ))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => sex = val);
+                    },
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
+
+                  // Activity Level Dropdown
                   DropdownButtonFormField<String>(
                     value: activityLevel,
-                    items: ["Low", "Moderate", "High"].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-                    onChanged: (val) => setState(() => activityLevel = val!),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: "Activity Level",
                       filled: true,
                       fillColor: AppTheme.cardBg,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppTheme.accentGold),
+                      ),
                     ),
+                    style: const TextStyle(color: AppTheme.textPrimary),
+                    items: ['Sedentary', 'Light', 'Moderate', 'Active', 'Very Active']
+                        .map((s) => DropdownMenuItem(
+                              value: s,
+                              child: Text(s),
+                            ))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => activityLevel = val);
+                    },
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
+
+                  // Goal Dropdown
                   DropdownButtonFormField<String>(
                     value: goal,
-                    items: ["Bulk", "Cut", "Maintain"].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-                    onChanged: (val) => setState(() => goal = val!),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: "Goal",
                       filled: true,
                       fillColor: AppTheme.cardBg,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppTheme.accentGold),
+                      ),
                     ),
+                    style: const TextStyle(color: AppTheme.textPrimary),
+                    items: ['Maintain', 'Bulk', 'Cut']
+                        .map((s) => DropdownMenuItem(
+                              value: s,
+                              child: Text(s),
+                            ))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => goal = val);
+                    },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
+
+                  // Continue Button
                   SizedBox(
-                    width: 200,
-                    height: 50,
+                    width: 180,
+                    height: 45,
                     child: ElevatedButton(
-                      onPressed: _submit,
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          User user = User(
+                            username: _usernameController.text,
+                            age: int.parse(_ageController.text),
+                            weight: double.parse(_weightController.text),
+                            sex: sex,
+                            activityLevel: activityLevel,
+                            goal: goal,
+                          );
+                          widget.onComplete(user);
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.accentGold,
                         foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50)),
                       ),
                       child: const Text(
-                        "Submit",
+                        "Continue",
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ),
