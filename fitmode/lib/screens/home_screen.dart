@@ -13,7 +13,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Map<String, double> remainingMacros;
+  late Map<String, double> totalMacros;
   String dailyQuote = "";
+  List<Map<String, dynamic>> recentMeals = [];
 
   final List<String> quotes = [
     "Push yourself because no one else will.",
@@ -28,28 +30,27 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    remainingMacros = calculateDailyMacros(widget.user);
+    totalMacros = calculateDailyMacros(widget.user);
+    remainingMacros = Map<String, double>.from(totalMacros);
     dailyQuote = quotes[Random().nextInt(quotes.length)];
   }
 
   Map<String, double> calculateDailyMacros(User user) {
-  // Use weightLbs instead of old "weight" field
-  double calories = user.weightLbs * 30;
-  if (user.goal == "Bulk") calories += 500;
-  if (user.goal == "Cut") calories -= 500;
+    double calories = user.weightLbs * 30;
+    if (user.goal == "Bulk") calories += 500;
+    if (user.goal == "Cut") calories -= 500;
 
-  double protein = user.weightLbs * 2;
-  double fat = calories * 0.25 / 9;
-  double carbs = (calories - (protein * 4 + fat * 9)) / 4;
+    double protein = user.weightLbs * 2;
+    double fat = calories * 0.25 / 9;
+    double carbs = (calories - (protein * 4 + fat * 9)) / 4;
 
-  return {
-    "Calories": calories,
-    "Protein": protein,
-    "Fat": fat,
-    "Carbs": carbs,
-  };
-}
-
+    return {
+      "Calories": calories,
+      "Protein": protein,
+      "Fat": fat,
+      "Carbs": carbs,
+    };
+  }
 
   void _showAddMealDialog(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
@@ -144,6 +145,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     (remainingMacros["Fat"]! - fat).clamp(0, double.infinity);
                 remainingMacros["Carbs"] =
                     (remainingMacros["Carbs"]! - carbs).clamp(0, double.infinity);
+
+                // Add to recent meals
+                recentMeals.insert(0, {
+                  "name": mealName,
+                  "Calories": cals,
+                  "Protein": protein,
+                  "Fat": fat,
+                  "Carbs": carbs,
+                });
+                if (recentMeals.length > 5) recentMeals.removeLast();
               });
               Navigator.pop(context);
             },
@@ -157,50 +168,68 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onNavTap(int index) {
     setState(() {
       _selectedIndex = index;
-      // TODO: hook up navigation later
     });
   }
 
-  Widget _buildMacroCard(String label, double value) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppTheme.cardBg,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppTheme.accentGoldDim.withOpacity(0.4)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 11,
-              letterSpacing: 1.2,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value.round().toString(),
-            style: const TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            height: 4,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(999),
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.accentGold,
-                  AppTheme.accentGoldDim,
-                ],
+  Widget _buildMacroCircle(String label, double remaining, double total, Color color) {
+    double progress = remaining / total;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 80,
+              height: 80,
+              child: CircularProgressIndicator(
+                value: progress,
+                strokeWidth: 10,
+                backgroundColor: AppTheme.cardBg.withOpacity(0.3),
+                color: color,
               ),
             ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  remaining.round().toString(),
+                  style: const TextStyle(
+                      color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: const TextStyle(
+                      color: AppTheme.textSecondary, fontSize: 11, letterSpacing: 1.1),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecentMealCard(Map<String, dynamic> meal) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.cardBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.accentGoldDim.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            meal["name"],
+            style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            "${meal["Calories"].round()} cal",
+            style: const TextStyle(color: AppTheme.textSecondary),
           ),
         ],
       ),
@@ -298,22 +327,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 10),
 
                 // Macro grid (2x2)
-                GridView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.6,
-                  ),
+                Wrap(
+                  spacing: 12, // horizontal spacing
+                  runSpacing: 12, // vertical spacing
+                  alignment: WrapAlignment.center,
                   children: [
-                    _buildMacroCard("Calories", remainingMacros["Calories"]!),
-                    _buildMacroCard("Protein", remainingMacros["Protein"]!),
-                    _buildMacroCard("Fat", remainingMacros["Fat"]!),
-                    _buildMacroCard("Carbs", remainingMacros["Carbs"]!),
+                    _buildMacroCircle("Calories", remainingMacros["Calories"]!, totalMacros["Calories"]!, AppTheme.accentGold),
+                    _buildMacroCircle("Protein", remainingMacros["Protein"]!, totalMacros["Protein"]!, Colors.green),
+                    _buildMacroCircle("Fat", remainingMacros["Fat"]!, totalMacros["Fat"]!, Colors.orange),
+                    _buildMacroCircle("Carbs", remainingMacros["Carbs"]!, totalMacros["Carbs"]!, Colors.blue),
                   ],
                 ),
+
 
                 const SizedBox(height: 24),
 
@@ -339,6 +364,38 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 12),
+
+                // Recent Food Log
+                const Text(
+                  "Recent Food Log",
+                  style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (recentMeals.isEmpty)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.cardBg,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.accentGoldDim.withOpacity(0.3)),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "No meals added yet",
+                        style: TextStyle(color: AppTheme.textSecondary),
+                      ),
+                    ),
+                  )
+                else
+                  Column(
+                    children: recentMeals.map((meal) => _buildRecentMealCard(meal)).toList(),
+                  ),
 
                 const SizedBox(height: 12),
 
