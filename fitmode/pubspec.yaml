@@ -11,15 +11,24 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  google_fonts: ^6.2.1   # <-- ADDED THIS
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.0   # <- update to latest
 
 flutter:
   uses-material-design: true
+
+flutter_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/fitmode.png"           
+  adaptive_icon_foreground: "assets/icon/fitmode.png"  
+  adaptive_icon_background: "#000000"   
+
 
   # If you later want to add your own custom font manually,
   # uncomment the section below:

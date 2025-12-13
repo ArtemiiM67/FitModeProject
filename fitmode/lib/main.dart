@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'screens/get_started_screen.dart';
 import 'screens/user_input_screen.dart';
 import 'screens/home_screen.dart';
 import 'models/user.dart';
@@ -17,10 +19,17 @@ class FitModeApp extends StatefulWidget {
 
 class _FitModeAppState extends State<FitModeApp> {
   User? _user;
+  bool _startedOnboarding = false;
 
   void _onUserComplete(User user) {
     setState(() {
       _user = user;
+    });
+  }
+
+  void _startOnboarding() {
+    setState(() {
+      _startedOnboarding = true;
     });
   }
 
@@ -31,12 +40,15 @@ class _FitModeAppState extends State<FitModeApp> {
       title: 'FitMode',
       theme: ThemeData.dark().copyWith(
         primaryColor: AppTheme.accentGold,
+        scaffoldBackgroundColor: AppTheme.bgColor,
         inputDecorationTheme: InputDecorationTheme(
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: AppTheme.accentGold, width: 2),
+            borderRadius: BorderRadius.circular(10),
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey.shade800, width: 1),
+            borderRadius: BorderRadius.circular(10),
           ),
           labelStyle: TextStyle(color: AppTheme.textSecondary),
           hintStyle: TextStyle(color: AppTheme.textSecondary),
@@ -47,9 +59,17 @@ class _FitModeAppState extends State<FitModeApp> {
           selectionHandleColor: AppTheme.accentGold,
         ),
       ),
-      home: _user == null
-        ? UserInputScreen(onComplete: _onUserComplete)
-        : HomeScreen(user: _user!),
+
+      home: _user != null
+          ? HomeScreen(user: _user!)
+          : _startedOnboarding
+              ? UserInputScreen(onComplete: _onUserComplete)
+              : GetStartedScreen(
+                  onGetStarted: _startOnboarding,
+                  onSignIn: () {
+                    // TODO: push LoginScreen later
+                  },
+                ),
     );
   }
 }
